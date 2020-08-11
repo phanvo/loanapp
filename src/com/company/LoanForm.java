@@ -13,6 +13,7 @@ import net.miginfocom.swing.*;
 public class LoanForm extends JFrame {
     public LoanForm() {
         initComponents();
+        initLoanTypeCb();
     }
 
     private void initComponents() {
@@ -27,7 +28,7 @@ public class LoanForm extends JFrame {
         label4 = new JLabel();
         textField4 = new JTextField();
         label5 = new JLabel();
-        comboBox1 = new JComboBox();
+        loanTypeCb = new JComboBox();
         scrollPane1 = new JScrollPane();
         table1 = new JTable();
         scrollPane2 = new JScrollPane();
@@ -81,7 +82,7 @@ public class LoanForm extends JFrame {
         //---- label5 ----
         label5.setText("Enter the loan type:");
         contentPane.add(label5, "cell 0 4");
-        contentPane.add(comboBox1, "cell 1 4");
+        contentPane.add(loanTypeCb, "cell 1 4");
 
         //======== scrollPane1 ========
         {
@@ -96,15 +97,15 @@ public class LoanForm extends JFrame {
         contentPane.add(scrollPane2, "cell 1 5");
 
         //---- button3 ----
-        button3.setText("text");
+        button3.setText("Add");
         contentPane.add(button3, "cell 0 6");
 
         //---- button2 ----
-        button2.setText("text");
+        button2.setText("Edit");
         contentPane.add(button2, "cell 0 6");
 
         //---- button1 ----
-        button1.setText("text");
+        button1.setText("Delete");
         contentPane.add(button1, "cell 0 6");
 
         //---- label6 ----
@@ -130,7 +131,7 @@ public class LoanForm extends JFrame {
     private JLabel label4;
     private JTextField textField4;
     private JLabel label5;
-    private JComboBox comboBox1;
+    private JComboBox loanTypeCb;
     private JScrollPane scrollPane1;
     private JTable table1;
     private JScrollPane scrollPane2;
@@ -141,4 +142,9 @@ public class LoanForm extends JFrame {
     private JLabel label6;
     private JTextField textField5;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    private void initLoanTypeCb(){
+        loanTypeCb.addItem("Business");
+        loanTypeCb.addItem("Personal");
+    }
 }

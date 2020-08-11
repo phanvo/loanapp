@@ -62,7 +62,7 @@ new FormModel {
 				"value": "cell 0 4"
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBox1"
+				name: "loanTypeCb"
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 1 4"
 			} )
@@ -84,19 +84,19 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button3"
-				"text": "text"
+				"text": "Add"
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 6"
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button2"
-				"text": "text"
+				"text": "Edit"
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 6"
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
-				"text": "text"
+				"text": "Delete"
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 6"
 			} )
