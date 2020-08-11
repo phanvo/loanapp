@@ -4,8 +4,13 @@
 
 package com.company;
 
+import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 import net.miginfocom.swing.*;
+
+import java.sql.ResultSet;
 
 /**
  * @author Phan Vo
@@ -14,26 +19,126 @@ public class LoanForm extends JFrame {
     public LoanForm() {
         initComponents();
         initLoanTypeCb();
+        initTable();
+    }
+
+    private void addBtnActionPerformed(ActionEvent e) {
+        // TODO add your code here
+        String clientNumber = clientNumberTf.getText().trim();
+        String clientName = clientNameTf.getText().trim();
+        String loanAmount = loanAmountTf.getText().trim();
+        String years = yearsTf.getText().trim();
+        String loanType = loanTypeCb.getSelectedItem().toString().trim();
+
+        boolean isValid = isValidInputs(clientNumber, clientName, loanAmount, years, loanType);
+        if (!isValid){
+            return;
+        }
+
+        LoanP newLoan = new LoanP(clientNumber, clientName, Double.parseDouble(loanAmount),
+                Integer.parseInt(years), loanType);
+
+        MySQLAccess mySQLAccess = null;
+        try {
+            mySQLAccess = new MySQLAccess("loan");
+
+            if (isExisting(mySQLAccess, clientNumber)){
+                JOptionPane.showMessageDialog(null, "Client number cannot be duplicate!");
+                return;
+            }
+
+            // insert query
+            mySQLAccess.executeUpdate("insert into loantable values (?, ?, ?, ?, ?)",
+                    new String[]{newLoan.getClientNumber(), newLoan.getClientName(),
+                            String.valueOf(newLoan.getLoanAmount()), String.valueOf(newLoan.getYears()), loanType});
+
+            JOptionPane.showMessageDialog(null, "Record added");
+
+            refreshTable(mySQLAccess);
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        } finally {
+            if(mySQLAccess != null){
+                mySQLAccess.closeConnection();
+            }
+        }
+    }
+
+    private boolean isValidInputs(String clientNumber, String clientName, String loanAmount,
+                                  String years, String loanType){
+        if(clientNumber.trim().length() == 0){
+            JOptionPane.showMessageDialog(null, "Client number cannot be empty!");
+            return false;
+        } else if (!isIntegerNum(clientNumber.trim())){
+            JOptionPane.showMessageDialog(null, "Client number must be a number!");
+            return false;
+        }
+
+        if(clientName.trim().length() == 0){
+            JOptionPane.showMessageDialog(null, "Client name cannot be empty!");
+            return false;
+        }
+
+        if(loanAmount.trim().length() == 0){
+            JOptionPane.showMessageDialog(null, "Loan amount cannot be empty!");
+            return false;
+        } else if (!isDoubleNum(loanAmount.trim())){
+            JOptionPane.showMessageDialog(null, "Loan amount must be a number!");
+            return false;
+        }
+
+        if(years.trim().length() == 0){
+            JOptionPane.showMessageDialog(null, "Years cannot be empty!");
+            return false;
+        } else if (!isIntegerNum(years.trim())){
+            JOptionPane.showMessageDialog(null, "Years must be a number!");
+            return false;
+        } else if (Integer.parseInt(years.trim()) < 1){
+            JOptionPane.showMessageDialog(null, "Years must be larger than 1!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isDoubleNum(String str){
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isIntegerNum(String str){
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
+        return false;
     }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner Evaluation license - jack
         label1 = new JLabel();
-        textField1 = new JTextField();
+        clientNumberTf = new JTextField();
         label2 = new JLabel();
-        textField2 = new JTextField();
+        clientNameTf = new JTextField();
         label3 = new JLabel();
-        textField3 = new JTextField();
+        loanAmountTf = new JTextField();
         label4 = new JLabel();
-        textField4 = new JTextField();
+        yearsTf = new JTextField();
         label5 = new JLabel();
         loanTypeCb = new JComboBox();
         scrollPane1 = new JScrollPane();
-        table1 = new JTable();
+        loanTable = new JTable();
         scrollPane2 = new JScrollPane();
         table2 = new JTable();
-        button3 = new JButton();
+        addBtn = new JButton();
         button2 = new JButton();
         button1 = new JButton();
         label6 = new JLabel();
@@ -60,24 +165,24 @@ public class LoanForm extends JFrame {
         label1.setText("Enter the client number:");
         contentPane.add(label1, "cell 0 0");
 
-        //---- textField1 ----
-        textField1.setColumns(20);
-        contentPane.add(textField1, "cell 1 0");
+        //---- clientNumberTf ----
+        clientNumberTf.setColumns(20);
+        contentPane.add(clientNumberTf, "cell 1 0");
 
         //---- label2 ----
         label2.setText("Enter the client name:");
         contentPane.add(label2, "cell 0 1");
-        contentPane.add(textField2, "cell 1 1");
+        contentPane.add(clientNameTf, "cell 1 1");
 
         //---- label3 ----
         label3.setText("Enter the customer loan amount:");
         contentPane.add(label3, "cell 0 2");
-        contentPane.add(textField3, "cell 1 2");
+        contentPane.add(loanAmountTf, "cell 1 2");
 
         //---- label4 ----
         label4.setText("Enter the number of years to pay");
         contentPane.add(label4, "cell 0 3");
-        contentPane.add(textField4, "cell 1 3");
+        contentPane.add(yearsTf, "cell 1 3");
 
         //---- label5 ----
         label5.setText("Enter the loan type:");
@@ -86,7 +191,7 @@ public class LoanForm extends JFrame {
 
         //======== scrollPane1 ========
         {
-            scrollPane1.setViewportView(table1);
+            scrollPane1.setViewportView(loanTable);
         }
         contentPane.add(scrollPane1, "cell 0 5");
 
@@ -96,9 +201,10 @@ public class LoanForm extends JFrame {
         }
         contentPane.add(scrollPane2, "cell 1 5");
 
-        //---- button3 ----
-        button3.setText("Add");
-        contentPane.add(button3, "cell 0 6");
+        //---- addBtn ----
+        addBtn.setText("Add");
+        addBtn.addActionListener(e -> addBtnActionPerformed(e));
+        contentPane.add(addBtn, "cell 0 6");
 
         //---- button2 ----
         button2.setText("Edit");
@@ -114,6 +220,7 @@ public class LoanForm extends JFrame {
 
         //---- textField5 ----
         textField5.setColumns(10);
+        textField5.setEnabled(false);
         contentPane.add(textField5, "cell 1 6");
         pack();
         setLocationRelativeTo(getOwner());
@@ -123,20 +230,20 @@ public class LoanForm extends JFrame {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner Evaluation license - jack
     private JLabel label1;
-    private JTextField textField1;
+    private JTextField clientNumberTf;
     private JLabel label2;
-    private JTextField textField2;
+    private JTextField clientNameTf;
     private JLabel label3;
-    private JTextField textField3;
+    private JTextField loanAmountTf;
     private JLabel label4;
-    private JTextField textField4;
+    private JTextField yearsTf;
     private JLabel label5;
     private JComboBox loanTypeCb;
     private JScrollPane scrollPane1;
-    private JTable table1;
+    private JTable loanTable;
     private JScrollPane scrollPane2;
     private JTable table2;
-    private JButton button3;
+    private JButton addBtn;
     private JButton button2;
     private JButton button1;
     private JLabel label6;
@@ -146,5 +253,52 @@ public class LoanForm extends JFrame {
     private void initLoanTypeCb(){
         loanTypeCb.addItem("Business");
         loanTypeCb.addItem("Personal");
+    }
+
+    private void initTable(){
+        String[] cols = {"Number", "Name", "Amount", "Years", "Type of Loan"};
+        String[][] data = {{}};
+
+        DefaultTableModel model = new DefaultTableModel(data, cols);
+        loanTable.setModel(model);
+
+        // populate data into the table
+        MySQLAccess mySQLAccess = null;
+        try {
+            mySQLAccess = new MySQLAccess("loan");
+
+            refreshTable(mySQLAccess);
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        } finally {
+            if(mySQLAccess != null){
+                mySQLAccess.closeConnection();
+            }
+        }
+    }
+
+    private void refreshTable(MySQLAccess mySQLAccess) throws Exception{
+        ResultSet resultSet = mySQLAccess.executeQuery("select * from loantable");
+
+        DefaultTableModel model = (DefaultTableModel) loanTable.getModel();
+        model.setRowCount(0);
+
+        while (resultSet.next()){
+            model.addRow(new String[]{resultSet.getString("clientno"),
+                    resultSet.getString("clientname"), resultSet.getString("loanamount"),
+                    resultSet.getString("years"),resultSet.getString("loantype")});
+        }
+    }
+
+    private boolean isExisting(MySQLAccess mySQLAccess, String str) throws Exception{
+        ResultSet resultSet = mySQLAccess.executeQuery("select * from loantable");
+
+        while (resultSet.next()){
+            if(str.equalsIgnoreCase(resultSet.getString("clientno"))){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
