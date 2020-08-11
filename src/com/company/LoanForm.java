@@ -121,6 +121,62 @@ public class LoanForm extends JFrame {
         return false;
     }
 
+    private void editBtnActionPerformed(ActionEvent e) {
+        // TODO add your code here
+        String clientNumber = clientNumberTf.getText().trim();
+        String clientName = clientNameTf.getText().trim();
+        String loanAmount = loanAmountTf.getText().trim();
+        String years = yearsTf.getText().trim();
+        String loanType = loanTypeCb.getSelectedItem().toString().trim();
+
+        boolean isValid = isValidInputs(clientNumber, clientName, loanAmount, years, loanType);
+        if (!isValid){
+            return;
+        }
+
+        LoanP newLoan = new LoanP(clientNumber, clientName, Double.parseDouble(loanAmount),
+                Integer.parseInt(years), loanType);
+
+        MySQLAccess mySQLAccess = null;
+        try {
+            mySQLAccess = new MySQLAccess("loan");
+
+            if (!isExisting(mySQLAccess, clientNumber)){
+                JOptionPane.showMessageDialog(null, "Client number does not exist!");
+                return;
+            }
+
+            // update query
+            mySQLAccess.executeUpdate("update loantable set clientname = ?, loanamount = ?, years = ?, " +
+                            "loantype = ? where clientno = ?", new String[]{newLoan.getClientName(),
+                    String.valueOf(newLoan.getLoanAmount()), String.valueOf(newLoan.getYears()),
+                    loanType, newLoan.getClientNumber()});
+
+            JOptionPane.showMessageDialog(null, "Record updated");
+
+            refreshTable(mySQLAccess);
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        } finally {
+            if(mySQLAccess != null){
+                mySQLAccess.closeConnection();
+            }
+        }
+    }
+
+    private void loanTableMouseClicked(MouseEvent e) {
+        // TODO add your code here
+        DefaultTableModel model = (DefaultTableModel) loanTable.getModel();
+
+        int index = loanTable.getSelectedRow();
+
+        clientNumberTf.setText(model.getValueAt(index, 0).toString());
+        clientNameTf.setText(model.getValueAt(index, 1).toString());
+        loanAmountTf.setText(model.getValueAt(index, 2).toString());
+        yearsTf.setText(model.getValueAt(index, 3).toString());
+        loanTypeCb.setSelectedItem(model.getValueAt(index, 4).toString());
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner Evaluation license - jack
@@ -139,7 +195,7 @@ public class LoanForm extends JFrame {
         scrollPane2 = new JScrollPane();
         table2 = new JTable();
         addBtn = new JButton();
-        button2 = new JButton();
+        editBtn = new JButton();
         button1 = new JButton();
         label6 = new JLabel();
         textField5 = new JTextField();
@@ -191,6 +247,14 @@ public class LoanForm extends JFrame {
 
         //======== scrollPane1 ========
         {
+
+            //---- loanTable ----
+            loanTable.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    loanTableMouseClicked(e);
+                }
+            });
             scrollPane1.setViewportView(loanTable);
         }
         contentPane.add(scrollPane1, "cell 0 5");
@@ -206,9 +270,10 @@ public class LoanForm extends JFrame {
         addBtn.addActionListener(e -> addBtnActionPerformed(e));
         contentPane.add(addBtn, "cell 0 6");
 
-        //---- button2 ----
-        button2.setText("Edit");
-        contentPane.add(button2, "cell 0 6");
+        //---- editBtn ----
+        editBtn.setText("Edit");
+        editBtn.addActionListener(e -> editBtnActionPerformed(e));
+        contentPane.add(editBtn, "cell 0 6");
 
         //---- button1 ----
         button1.setText("Delete");
@@ -244,7 +309,7 @@ public class LoanForm extends JFrame {
     private JScrollPane scrollPane2;
     private JTable table2;
     private JButton addBtn;
-    private JButton button2;
+    private JButton editBtn;
     private JButton button1;
     private JLabel label6;
     private JTextField textField5;

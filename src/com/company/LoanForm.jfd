@@ -70,6 +70,7 @@ new FormModel {
 				name: "scrollPane1"
 				add( new FormComponent( "javax.swing.JTable" ) {
 					name: "loanTable"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "loanTableMouseClicked", true ) )
 				} )
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 5"
@@ -90,8 +91,9 @@ new FormModel {
 				"value": "cell 0 6"
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button2"
+				name: "editBtn"
 				"text": "Edit"
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "editBtnActionPerformed", true ) )
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 0 6"
 			} )
