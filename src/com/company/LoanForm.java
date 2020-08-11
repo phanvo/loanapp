@@ -181,12 +181,15 @@ public class LoanForm extends JFrame {
                     Double.parseDouble(loanAmountTf.getText()),
                     Integer.parseInt(yearsTf.getText()), loanTypeCb.getSelectedItem().toString());
             selectedItem.generateTable(scheduleTable);
+            monthlyPaymentTf.setText(String.format("%.2f", selectedItem.computeMonthlyPayment()));
         } else if(loanTypeCb.getSelectedItem().toString().equalsIgnoreCase("personal")){
             Personal selectedItem = new Personal(clientNumberTf.getText(), clientNameTf.getText(),
                     Double.parseDouble(loanAmountTf.getText()),
                     Integer.parseInt(yearsTf.getText()), loanTypeCb.getSelectedItem().toString());
             selectedItem.generateTable(scheduleTable);
+            monthlyPaymentTf.setText(String.format("%.2f", selectedItem.computeMonthlyPayment()));
         }
+
     }
 
     private void deleteBtnActionPerformed(ActionEvent e) {
@@ -202,13 +205,19 @@ public class LoanForm extends JFrame {
                 return;
             }
 
-            // delete query
-            mySQLAccess.executeUpdate("delete from loantable where clientno = ?",
-                    new String[]{clientNumber});
+            int input = JOptionPane.showConfirmDialog(null,
+                    "Do you really want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
 
-            JOptionPane.showMessageDialog(null, "Record deleted");
+            // 0=yes, 1=no
+            if(input == 0){
+                // delete query
+                mySQLAccess.executeUpdate("delete from loantable where clientno = ?",
+                        new String[]{clientNumber});
 
-            refreshTable(mySQLAccess);
+                JOptionPane.showMessageDialog(null, "Record deleted");
+
+                refreshTable(mySQLAccess);
+            }
         } catch (Exception ex){
             System.out.println(ex.getMessage());
         } finally {
@@ -239,7 +248,7 @@ public class LoanForm extends JFrame {
         editBtn = new JButton();
         deleteBtn = new JButton();
         label6 = new JLabel();
-        textField5 = new JTextField();
+        monthlyPaymentTf = new JTextField();
 
         //======== this ========
         setTitle("Loan Projection");
@@ -325,10 +334,10 @@ public class LoanForm extends JFrame {
         label6.setText("Monthly Payment");
         contentPane.add(label6, "cell 1 6");
 
-        //---- textField5 ----
-        textField5.setColumns(10);
-        textField5.setEnabled(false);
-        contentPane.add(textField5, "cell 1 6");
+        //---- monthlyPaymentTf ----
+        monthlyPaymentTf.setColumns(10);
+        monthlyPaymentTf.setEnabled(false);
+        contentPane.add(monthlyPaymentTf, "cell 1 6");
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -354,7 +363,7 @@ public class LoanForm extends JFrame {
     private JButton editBtn;
     private JButton deleteBtn;
     private JLabel label6;
-    private JTextField textField5;
+    private JTextField monthlyPaymentTf;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     private void initLoanTypeCb(){
@@ -395,6 +404,8 @@ public class LoanForm extends JFrame {
                     resultSet.getString("clientname"), resultSet.getString("loanamount"),
                     resultSet.getString("years"),resultSet.getString("loantype")});
         }
+
+        resetTextFields();
     }
 
     private boolean isExisting(MySQLAccess mySQLAccess, String str) throws Exception{
@@ -407,5 +418,13 @@ public class LoanForm extends JFrame {
         }
 
         return false;
+    }
+
+    public void resetTextFields(){
+        clientNumberTf.setText("");
+        clientNameTf.setText("");
+        loanAmountTf.setText("");
+        yearsTf.setText("");
+        monthlyPaymentTf.setText("");
     }
 }

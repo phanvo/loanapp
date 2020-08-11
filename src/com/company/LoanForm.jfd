@@ -111,7 +111,7 @@ new FormModel {
 				"value": "cell 1 6"
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
-				name: "textField5"
+				name: "monthlyPaymentTf"
 				"columns": 10
 				"enabled": false
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
