@@ -152,7 +152,7 @@ public class LoanForm extends JFrame {
                     String.valueOf(newLoan.getLoanAmount()), String.valueOf(newLoan.getYears()),
                     loanType, newLoan.getClientNumber()});
 
-            JOptionPane.showMessageDialog(null, "Record updated");
+            JOptionPane.showMessageDialog(null, "Record edited");
 
             refreshTable(mySQLAccess);
         } catch (Exception ex){
@@ -175,6 +175,18 @@ public class LoanForm extends JFrame {
         loanAmountTf.setText(model.getValueAt(index, 2).toString());
         yearsTf.setText(model.getValueAt(index, 3).toString());
         loanTypeCb.setSelectedItem(model.getValueAt(index, 4).toString());
+
+        if(loanTypeCb.getSelectedItem().toString().equalsIgnoreCase("business")){
+            Business selectedItem = new Business(clientNumberTf.getText(), clientNameTf.getText(),
+                    Double.parseDouble(loanAmountTf.getText()),
+                    Integer.parseInt(yearsTf.getText()), loanTypeCb.getSelectedItem().toString());
+            selectedItem.generateTable(scheduleTable);
+        } else if(loanTypeCb.getSelectedItem().toString().equalsIgnoreCase("personal")){
+            Personal selectedItem = new Personal(clientNumberTf.getText(), clientNameTf.getText(),
+                    Double.parseDouble(loanAmountTf.getText()),
+                    Integer.parseInt(yearsTf.getText()), loanTypeCb.getSelectedItem().toString());
+            selectedItem.generateTable(scheduleTable);
+        }
     }
 
     private void deleteBtnActionPerformed(ActionEvent e) {
@@ -190,7 +202,7 @@ public class LoanForm extends JFrame {
                 return;
             }
 
-            // update query
+            // delete query
             mySQLAccess.executeUpdate("delete from loantable where clientno = ?",
                     new String[]{clientNumber});
 
@@ -222,7 +234,7 @@ public class LoanForm extends JFrame {
         scrollPane1 = new JScrollPane();
         loanTable = new JTable();
         scrollPane2 = new JScrollPane();
-        table2 = new JTable();
+        scheduleTable = new JTable();
         addBtn = new JButton();
         editBtn = new JButton();
         deleteBtn = new JButton();
@@ -290,7 +302,7 @@ public class LoanForm extends JFrame {
 
         //======== scrollPane2 ========
         {
-            scrollPane2.setViewportView(table2);
+            scrollPane2.setViewportView(scheduleTable);
         }
         contentPane.add(scrollPane2, "cell 1 5");
 
@@ -337,7 +349,7 @@ public class LoanForm extends JFrame {
     private JScrollPane scrollPane1;
     private JTable loanTable;
     private JScrollPane scrollPane2;
-    private JTable table2;
+    private JTable scheduleTable;
     private JButton addBtn;
     private JButton editBtn;
     private JButton deleteBtn;
