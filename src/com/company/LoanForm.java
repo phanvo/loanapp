@@ -177,6 +177,35 @@ public class LoanForm extends JFrame {
         loanTypeCb.setSelectedItem(model.getValueAt(index, 4).toString());
     }
 
+    private void deleteBtnActionPerformed(ActionEvent e) {
+        // TODO add your code here
+        String clientNumber = clientNumberTf.getText().trim();
+
+        MySQLAccess mySQLAccess = null;
+        try {
+            mySQLAccess = new MySQLAccess("loan");
+
+            if (!isExisting(mySQLAccess, clientNumber)){
+                JOptionPane.showMessageDialog(null, "Client number does not exist!");
+                return;
+            }
+
+            // update query
+            mySQLAccess.executeUpdate("delete from loantable where clientno = ?",
+                    new String[]{clientNumber});
+
+            JOptionPane.showMessageDialog(null, "Record deleted");
+
+            refreshTable(mySQLAccess);
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        } finally {
+            if(mySQLAccess != null){
+                mySQLAccess.closeConnection();
+            }
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner Evaluation license - jack
@@ -196,7 +225,7 @@ public class LoanForm extends JFrame {
         table2 = new JTable();
         addBtn = new JButton();
         editBtn = new JButton();
-        button1 = new JButton();
+        deleteBtn = new JButton();
         label6 = new JLabel();
         textField5 = new JTextField();
 
@@ -275,9 +304,10 @@ public class LoanForm extends JFrame {
         editBtn.addActionListener(e -> editBtnActionPerformed(e));
         contentPane.add(editBtn, "cell 0 6");
 
-        //---- button1 ----
-        button1.setText("Delete");
-        contentPane.add(button1, "cell 0 6");
+        //---- deleteBtn ----
+        deleteBtn.setText("Delete");
+        deleteBtn.addActionListener(e -> deleteBtnActionPerformed(e));
+        contentPane.add(deleteBtn, "cell 0 6");
 
         //---- label6 ----
         label6.setText("Monthly Payment");
@@ -310,7 +340,7 @@ public class LoanForm extends JFrame {
     private JTable table2;
     private JButton addBtn;
     private JButton editBtn;
-    private JButton button1;
+    private JButton deleteBtn;
     private JLabel label6;
     private JTextField textField5;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
